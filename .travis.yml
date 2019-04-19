@@ -38,16 +38,19 @@ matrix:
 
 before_install:
   - |
-    if [ "$JYTHON" == "true" ]; then 
+    if [ "$TOXENV" == "jython" ]; then 
       hg clone http://hg.python.org/jython; cd jython; ant; cd ..; chmod +x "$(pwd)/jython/dist/bin/jython"
-      export PYTHON_EXE="$(pwd)/jython/dist/bin/jython"; else export PYTHON_EXE=python
       alias jython="$(pwd)/jython/dist/bin/jython"
-      export PATH="$(pwd)/jython/dist/bin:$PATH"; fi
+      export PATH="$(pwd)/jython/dist/bin:$PATH"
+      export PYTHON_EXE="$(pwd)/jython/dist/bin/jython"
       wget https://bootstrap.pypa.io/get-pip.py
       $PYTHON_EXE get-pip.py
+    else 
+      export PYTHON_EXE=python
     fi
   - uname -a
   - lsb_release -a
-install:
-  - $PYTHON_EXE -m pip install --upgrade pip tox
-script:	python -m tox -e $TOXENV
+
+install: $PYTHON_EXE -m pip install --upgrade pip tox
+
+script:	$PYTHON_EXE -m tox -e $TOXENV
