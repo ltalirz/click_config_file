@@ -36,7 +36,18 @@ matrix:
     env:
       TOXENV: jython
 
-
-before_install: if [ "$TOXENV" == "jython" ]; then sudo apt-get install jython; fi
-install: pip install tox
-script: tox
+before_install:
+  - |
+    if [ "$JYTHON" == "true" ]; then 
+      hg clone http://hg.python.org/jython; cd jython; ant; cd ..; chmod +x "$(pwd)/jython/dist/bin/jython"
+      export PYTHON_EXE="$(pwd)/jython/dist/bin/jython"; else export PYTHON_EXE=python
+      alias jython="$(pwd)/jython/dist/bin/jython"
+      export PATH="$(pwd)/jython/dist/bin:$PATH"; fi
+      wget https://bootstrap.pypa.io/get-pip.py
+      $PYTHON_EXE get-pip.py
+    fi
+  - uname -a
+  - lsb_release -a
+install:
+  - $PYTHON_EXE -m pip install --upgrade pip tox
+script:	python -m tox -e $TOXENV
